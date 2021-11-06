@@ -13,7 +13,7 @@ function getStatus() {
     if (!response.ok) {
       console.log(response.status)
     }
-    return response.text;
+    return response.text();
   })
   .then(response => {
     console.log(response);
