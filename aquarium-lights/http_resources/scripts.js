@@ -11,10 +11,13 @@ function getStatus() {
   fetch(fetchStatus)
   .then(function(response) {
     if (!response.ok) {
-      console.log($response.status)
+      console.log(response.status)
     }
-    console.log(response.blob());
-    updateStatus(JSON.parse(response.blob()));
+    return response.blob();
+  })
+  .then(function(response) {
+    console.log(response;
+    updateStatus(JSON.parse(response);
   });
 }
 
