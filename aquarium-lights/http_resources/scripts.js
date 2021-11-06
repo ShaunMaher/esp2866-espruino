@@ -1,5 +1,7 @@
+var refreshStatus = '';
+
 function onLoad() {
-  setInterval(function() {
+  refreshStatus = setInterval(function() {
     getStatus();
   }, 10000);
 }
@@ -11,8 +13,8 @@ function getStatus() {
     if (!response.ok) {
       console.log($response.status)
     }
-    console.log(response.blob);
-    updateStatus(JSON.parse(response.blob));
+    console.log(response.blob());
+    updateStatus(JSON.parse(response.blob()));
   });
 }
 
