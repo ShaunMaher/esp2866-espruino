@@ -16,7 +16,7 @@ function getStatus() {
     return response.blob();
   })
   .then(function(response) {
-    console.log(response;
+    console.log(response);
     updateStatus(JSON.parse(response);
   });
 }
