@@ -9,13 +9,13 @@ function onLoad() {
 function getStatus() {
   let fetchStatus = new Request('/status');
   fetch(fetchStatus)
-  .then(function(response) {
+  .then(response => {
     if (!response.ok) {
       console.log(response.status)
     }
-    return response.blob();
+    return response.text;
   })
-  .then(function(response) {
+  .then(response => {
     console.log(response);
     updateStatus(JSON.parse(response));
   });

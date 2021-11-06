@@ -27,7 +27,7 @@ var file = {
 var externalCssUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/aquarium-lights/http_resources/style.css";
 
 //var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/aquarium-lights/http_resources/scripts.js";
-var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/50d3c2465afe62cdb4d6582abd9854fb9cdba2c3/aquarium-lights/http_resources/scripts.js";
+var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/796b3ea5368723c59ca07b1e24e29cf56a290780/aquarium-lights/http_resources/scripts.js";
 
 // We can get some details about the selected timezone here:
 // http://worldtimeapi.org/api/timezone/Australia/Melbourne
