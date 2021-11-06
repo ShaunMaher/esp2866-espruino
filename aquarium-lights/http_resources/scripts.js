@@ -5,16 +5,17 @@ function onLoad() {
 }
 
 function getStatus() {
-  const request = new Request('/status', {
-    method: 'GET'
-  });
-
-  request.json().then(function(data) {
-    console.log(data)
-    updateStatus();
+  let fetchStatus = new Request('/status');
+  fetch(fetchStatus)
+  .then(function(response) {
+    if (!response.ok) {
+      console.log($response.status)
+    }
+    console.log(response.blob);
+    updateStatus(JSON.parse(response.blob));
   });
 }
 
-function updateStatus() {
-  console.log("updateStatus()");
+function updateStatus(status) {
+  console.log("updateStatus(" + JSON.stringify(status) + ")");
 }

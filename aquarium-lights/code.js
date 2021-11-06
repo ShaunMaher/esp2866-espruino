@@ -29,7 +29,7 @@ var externalCssUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/
 var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/aquarium-lights/http_resources/scripts.js";
 
 // We can get some details about the selected timezone here:
-// http://worldtimeapi.org/api/timezone/Australia/Melbourne.txt
+// http://worldtimeapi.org/api/timezone/Australia/Melbourne
 
 // Zero will trigger an attempt to update the sunset/sunrise times immediately on startup
 var today = 0;
@@ -56,11 +56,11 @@ console.log = function(object) {
   eventLog.push({ "time": getTime(), "event": object });
 };
 
-const htmlHeader = "<html><head><meta content=\"text/html;charset=utf-8\" http-equiv=\"Content-Type\"><meta content=\"utf-8\" http-equiv=\"encoding\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap\" rel=\"stylesheet\"><link href=\"" + externalCssUrl + "\" rel=\"stylesheet\">";
+const htmlHeader = "<html><head><meta content=\"text/html;charset=utf-8\" http-equiv=\"Content-Type\"><meta content=\"utf-8\" http-equiv=\"encoding\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap\" rel=\"stylesheet\"><link href=\"" + externalCssUrl + "\" rel=\"stylesheet\"><script src=\"" + externalScriptsUrl + "\"></script> ";
 
 const htmlFooter = "</body></html>";
 
-const indexPage = "<title>Aquarium thingo</title></head><body><div id=\"eventLogButton\"><a href=\"/eventLog\">Event Log (JSON)</a></div><div id=\"relayForceOnButton\"><a href=\"/relayForceOn\">Force Lights On</a></div><div id=\"relayForceOffButton\"><a href=\"/relayForceOff\">Force Lights Off</a></div><div id=\"relayForceOnButton\"><a href=\"/automaticOn\">Set lights to automatic</a></div><div id=\"relayForceOnButton\"><a href=\"/automaticOff\">Disable automatic</a></div>";
+const indexPage = "<title>Aquarium thingo</title></head><body onload=\"onLoad()\"><div id=\"eventLogButton\"><a href=\"/eventLog\">Event Log (JSON)</a></div><div id=\"relayForceOnButton\"><a href=\"/relayForceOn\">Force Lights On</a></div><div id=\"relayForceOffButton\"><a href=\"/relayForceOff\">Force Lights Off</a></div><div id=\"relayForceOnButton\"><a href=\"/automaticOn\">Set lights to automatic</a></div><div id=\"relayForceOnButton\"><a href=\"/automaticOff\">Disable automatic</a></div>";
 
 const relayActionOkPage = "<title>Aquarium thingo</title></head><body onload=\"window.location.href = '/';\">Ok";
 
@@ -104,10 +104,9 @@ function relayOpen() {
 }
 
 function getDaylightHours() {
-  let date = new Date(((getTime() - (11 * 3600)) * 1000));
-  console.log((getTime() - (11 * 3600)) * 1000);
+  let date = new Date(((getTime() - (tzOffsetHours * 3600)) * 1000));
   let now = date.getFullYear() + "-" + (date.getMonth() + 1) + '-' + date.getDate().toString().padStart(2, "0");
-  console.log(now);
+  console.log("Current date (UTC): " + now);
   if (now != today) {
     console.log("Fetching updated sunrise/sunset data");
     let http = require("http");
@@ -123,7 +122,7 @@ function getDaylightHours() {
         allData = allData + data;
       });
       res.on('close', function() {
-        console.log(allData);
+        //console.log(allData);
         let parsedData = {};
         try {
           parsedData = JSON.parse(allData);
@@ -136,9 +135,11 @@ function getDaylightHours() {
         //console.log(parsedData);
         let newSunsetTime = new Date(parsedData.results.sunset);
         sunsetTime = newSunsetTime.getHours().toString().padStart(2, "0") + ":" + newSunsetTime.getMinutes().toString().padStart(2, "0");
+        console.log("New Sunset Time: " + sunsetTime);
         
         let newSunriseTime = new Date(parsedData.results.sunrise);
         sunriseTime = newSunriseTime.getHours().toString().padStart(2, "0") + ":" + newSunriseTime.getMinutes().toString().padStart(2, "0");
+        console.log("New Sunrise Time: " + sunriseTime);
       });
     }).on('error', function(e) {
       console.log("Failed to fetch updated sunrise/sunset data.", e);
@@ -148,18 +149,20 @@ function getDaylightHours() {
 
 function onPageRequest(req, res) {
   var a = url.parse(req.url, true);
-  console.log(a);
+  console.log("HTTP Request: " + JSON.stringify(a));
   if (a.path == "/") {
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.write(htmlHeader + indexPage + htmlFooter);
     res.end('');
   }
   else if (a.path == "/relayForceOn") {
+    automaticLights = 0;
     relayClose();
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(htmlHeader + relayActionOkPage + htmlFooter);
   }
   else if (a.path == "/relayForceOff") {
+    automaticLights = 0;
     relayOpen();
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(htmlHeader + relayActionOkPage + htmlFooter);
