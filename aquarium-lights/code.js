@@ -4,6 +4,7 @@ var serialSetupComplete = 0;
 var relayState = 0;
 
 var automaticLights = 1;
+var automaticLightsInterval = '';
 
 var bootTime = getTime();
 
@@ -27,7 +28,7 @@ var file = {
 var externalCssUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/aquarium-lights/http_resources/style.css";
 
 //var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/main/aquarium-lights/http_resources/scripts.js";
-var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/796b3ea5368723c59ca07b1e24e29cf56a290780/aquarium-lights/http_resources/scripts.js";
+var externalScriptsUrl = "https://gitcdn.link/repo/ShaunMaher/esp2866-espruino/d45ba79855786692e19421244e34ac42549b0ac0/aquarium-lights/http_resources/scripts.js";
 
 // We can get some details about the selected timezone here:
 // http://worldtimeapi.org/api/timezone/Australia/Melbourne
@@ -52,7 +53,7 @@ console.log = function(object) {
   realConsole.log(object);
   
   // shift() objects out of the array if it gets too big
-  while (eventLog.length >= 100) eventLog.shift();
+  while (eventLog.length >= 10) eventLog.shift();
   
   eventLog.push({ "time": getTime(), "event": object });
 };
@@ -192,6 +193,32 @@ function onPageRequest(req, res) {
   }
 }
 
+function automaticLightsTimer() {
+  //console.log("automaticLightsTimer()");
+  if (automaticLights != 1) {
+    //console.log("automatic lights are disabled.");
+    return;
+  }
+  
+  let nowTime = new Date();
+  let today = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1).toString().padStart(2, "0") + "-" + nowTime.getDate().toString().padStart(2, "0");
+  let onTime = new Date(today + "T" + sunriseTime + ":00");  // Today's date with sunriseTime as the time component
+  let offTime = new Date(today + "T" + sunsetTime + ":00");  // Today's date with sunsetTime as the time component
+  
+  if ((nowTime.getTime() > onTime.getTime()) && (nowTime.getTime() < offTime.getTime())) {
+    if (relayState == 0) {
+      console.log("It's Sunrise! Turning on the lights");
+    }
+    relayClose();
+  }
+  else {
+    if (relayState == 1) {
+      console.log("It's Sunset. Turning off the lights");
+    }
+    relayOpen();
+  }
+}
+
 function onInit() {
   console.log("onInit()");
   
@@ -206,6 +233,8 @@ function onInit() {
     console.log(err);
   }
   getDaylightHours();
+  
+  automaticLightsInterval = setInterval(automaticLightsTimer, 1000);
 }
 
 onInit();
